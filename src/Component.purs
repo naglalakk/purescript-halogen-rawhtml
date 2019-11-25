@@ -25,6 +25,7 @@ type Input =
 
 data Action 
   = Initialize
+  | Receive Input
 
 component :: forall m
            . MonadEffect m
@@ -36,6 +37,7 @@ component =
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
       , initialize = Just Initialize
+      , receive  = Just <<< Receive
       }
     }
   where
@@ -54,6 +56,10 @@ component =
         Just el -> do
           liftEffect $ setHTML el state.html
       pure unit
+
+    Receive input -> H.modify_ _ { html = input.html
+                                , elRef = input.elRef
+                                }
 
   render :: State -> H.ComponentHTML Action () m
   render state =  
